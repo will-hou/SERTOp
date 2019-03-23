@@ -20,7 +20,7 @@ def parse_position(position):
     return team_num, scoring_location
 
 
-def create_model(teams):
+def create_model(teams, num_null_panels=6, verbose=False):
     # Variable to contain the problem data
     prob = LpProblem("Maximizing Deepspace Scoring Potential", LpMaximize)
 
@@ -68,7 +68,8 @@ def create_model(teams):
 
     # Create constraints based on available hatches/bays
     prob += lpSum(
-        positions[i] for i in positions if 'CS' in i and 'P' in i) <= 8, "Total Number of Hatches on Cargo Ship"
+        positions[i] for i in positions if
+        'CS' in i and 'P' in i) + num_null_panels <= 8, "Total Number of Hatches on Cargo Ship"
     prob += lpSum(
         positions[i] for i in positions if 'CS' in i and 'P' not in i) <= 8, "Total Number of Bays on Cargo Ship"
     prob += lpSum(
@@ -80,7 +81,15 @@ def create_model(teams):
     prob += lpSum(positions[i] for i in positions if
                   'RMH' in i and 'P' not in i) <= 8, "Total Number of Bays on Middle/High Rockets"
 
-
+    # Create constraints limiting cargo placements to be equal or less than panel placements
+    prob += lpSum(positions[i] for i in positions if 'CS' in i and 'P' not in i) <= lpSum(
+        positions[i] for i in positions if
+        'CS' in i and 'P' in i) + num_null_panels, "Panels must be placed before Cargo on Cargo Ship"
+    prob += lpSum(positions[i] for i in positions if 'RL' in i and 'P' not in i) <= lpSum(
+        positions[i] for i in positions if 'RL' in i and 'P' in i), "Panels must be placed before Cargo on Low Rockets"
+    prob += lpSum(positions[i] for i in positions if 'RMH' in i and 'P' not in i) <= lpSum(
+        positions[i] for i in positions if
+        'RMH' in i and 'P' in i), "Panels must be placed before Cargo on Middle/High Rockets"
 
     """ 
     =====================================================================================================
@@ -88,6 +97,7 @@ def create_model(teams):
     =====================================================================================================
     """
 
+    # Write the LP problem to a file
     prob.writeLP('deepspace_optimizer')
 
     # The problem is solved using PuLP's choice of Solver
@@ -97,11 +107,37 @@ def create_model(teams):
     print("Status:", LpStatus[prob.status])
 
     # Each of the variables is printed with it's resolved optimum value
-    for v in prob.variables():
-        print(v.name, "=", v.varValue)
 
-    # The optimised objective function value is printed to the screen
-    print("MAX", value(prob.objective))
+    if verbose:
+        for v in prob.variables():
+            print(v.name, "=", v.varValue)
+            # The optimised objective function value is printed to the screen
+        print("MAX", value(prob.objective))
+
+    # Create dictionary to store the optimum game pieces at each scoring location, max score,
+    # and number of null panels to use
+    optimum_positions = {v.name: v.varValue for v in prob.variables()}
+    optimum_positions.update(score=value(prob.objective), num_null_panels=num_null_panels)
+
+    return optimum_positions
+
+
+def find_optimal_null(teams):
+    best_score = 0
+    all_scores = []
+    for num_null_panels in range(0, 6 + 1):
+        optimums = create_model([568, 1359, 1425], num_null_panels)
+        all_scores.append(optimums['score'])
+        if optimums['score'] > best_score:
+            best_score = optimums['score']
+            best_optimums = optimums
+
+    print('All the possible scores were: ', all_scores)
+
+    return best_optimums
 
 
 create_model([568, 1359, 1425])
+best = find_optimal_null([568, 1359, 1425])
+
+print(best['num_null_panels'])
