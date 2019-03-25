@@ -20,7 +20,7 @@ def parse_position(position):
     return team_num, scoring_location
 
 
-def create_model(teams, num_null_panels=6, verbose=False):
+def create_problem(teams, num_null_panels=6, verbose=False):
     # Variable to contain the problem data
     prob = LpProblem("Maximizing Deepspace Scoring Potential", LpMaximize)
 
@@ -29,8 +29,6 @@ def create_model(teams, num_null_panels=6, verbose=False):
     for scoring_location in scoring_locations:
         for team in teams:
             positions.append('{}-{}'.format(str(team), scoring_location))
-    print(positions)
-
     # Assigning the proper point values to each of the positions
     point_values = {position: 2 if 'P' in position.split('-')[1] else 3 for position in positions}
 
@@ -103,32 +101,32 @@ def create_model(teams, num_null_panels=6, verbose=False):
     # The problem is solved using PuLP's choice of Solver
     prob.solve()
 
-    # The status of the solution is printed to the screen
-    print("Status:", LpStatus[prob.status])
-
-    # Each of the variables is printed with it's resolved optimum value
-
     if verbose:
+        # The status of the solution is printed to the screen
+        print("Status:", LpStatus[prob.status])
+        # Each of the variables is printed with it's resolved optimum value
         for v in prob.variables():
             print(v.name, "=", v.varValue)
-            # The optimised objective function value is printed to the screen
+        # The optimised objective function value is printed to the screen
         print("MAX", value(prob.objective))
 
-    # Create dictionary to store the optimum game pieces at each scoring location, max score,
+    # Create dictionary to store the optimum game pieces at each scoring location, max score, teams,
     # and number of null panels to use
     optimum_positions = {v.name: v.varValue for v in prob.variables()}
-    optimum_positions.update(score=value(prob.objective), num_null_panels=num_null_panels)
+    optimum_positions.update(score=value(prob.objective), num_null_panels=num_null_panels, teams=teams)
 
     return optimum_positions
 
 
+# Creates 6 different LP problems with different number of null panels and returns the highest-scoring solution
 def find_optimal_null(teams):
     best_score = 0
     all_scores = []
     for num_null_panels in range(0, 6 + 1):
-        optimums = create_model([568, 1359, 1425], num_null_panels)
+        optimums = create_problem(teams, num_null_panels)
         all_scores.append(optimums['score'])
-        if optimums['score'] > best_score:
+        # If there are identical scores with different numbers of null panels, keep the one that uses the most
+        if optimums['score'] >= best_score:
             best_score = optimums['score']
             best_optimums = optimums
 
@@ -137,7 +135,8 @@ def find_optimal_null(teams):
     return best_optimums
 
 
-create_model([568, 1359, 1425])
-best = find_optimal_null([568, 1359, 1425])
-
-print(best['num_null_panels'])
+# create_problem([2521, 1359, 1425])
+# best = find_optimal_null([568, 1359, 1425])
+#
+# print(best['num_null_panels'])
+# print(best['score'])
