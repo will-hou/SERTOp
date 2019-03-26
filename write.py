@@ -1,7 +1,6 @@
-from create_problem import *
 import numpy as np
-from openpyxl import Workbook, load_workbook
-from itertools import repeat
+from openpyxl import load_workbook
+
 
 # TODO: Remove excess logging after further observation to confirm accuracy
 def write_to_spreadsheet(optimal_positions, loadname, savename, match_num, alliance_color):
@@ -32,7 +31,8 @@ def write_to_spreadsheet(optimal_positions, loadname, savename, match_num, allia
     =====================================================================================================
     """
     # Loads the workbook and assigns the worksheet to a variable
-    workbook = load_workbook('DeepSpace Scoring Optimizer.xlsx') if loadname == 'default' else load_workbook(loadname)
+    workbook = load_workbook('DeepSpace Spreadsheet Template.xlsx') if loadname == 'default' else load_workbook(
+        loadname)
     sheet = workbook['Match']
 
     # List of the column letters to to write data in
