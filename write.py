@@ -3,7 +3,7 @@ import numpy as np
 from openpyxl import Workbook, load_workbook
 from itertools import repeat
 
-
+# TODO: Remove excess logging after further observation to confirm accuracy
 def write_to_spreadsheet(optimal_positions, loadname, savename, match_num, alliance_color):
     print(optimal_positions)
 

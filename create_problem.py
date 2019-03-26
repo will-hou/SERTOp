@@ -1,9 +1,6 @@
 from pulp import *
 import json
 
-with open('clackams_extracted.json', 'r') as fp:
-    scouting_data = json.load(fp)
-
 scoring_locations = ['C_CS', 'C_RL', 'C_RMH', 'P_CS', 'P_RL', 'P_RMH']
 
 # Dictionary associating position names with scouted metric names
@@ -30,7 +27,11 @@ values corresponding to number of game pieces to be scored in that position
 """
 
 
-def create_problem(teams, num_null_panels=6, verbose=False):
+def create_problem(datafile, teams, num_null_panels=6, verbose=False):
+    # Reads the given file of formatted scouting data
+    with open(datafile, 'r') as fp:
+        scouting_data = json.load(fp)
+
     # Variable to contain the problem data
     prob = LpProblem("Maximizing Deepspace Scoring Potential", LpMaximize)
 
@@ -129,11 +130,11 @@ def create_problem(teams, num_null_panels=6, verbose=False):
 
 
 # Creates 6 different LP problems with different number of null panels and returns the highest-scoring solution
-def find_optimal_null(teams):
+def find_optimal_null(datafile, teams):
     best_score = 0
     all_scores = []
     for num_null_panels in range(0, 6 + 1):
-        optimums = create_problem(teams, num_null_panels)
+        optimums = create_problem(datafile, teams, num_null_panels)
         all_scores.append(optimums['score'])
         # If there are identical scores with different numbers of null panels, keep the one that uses the most
         if optimums['score'] >= best_score:
