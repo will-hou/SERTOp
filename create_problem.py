@@ -20,6 +20,16 @@ def parse_position(position):
     return team_num, scoring_location
 
 
+"""
+Creates and solves a LP problem optimizing the number of game piece points with constraints corresponding to teams' 
+scouted abilities, number of game pieces, number of scoring locations, and number of null hatch panels.
+
+return :optimum_positions: dict
+Dictionary with keys corresponding to position names and 
+values corresponding to number of game pieces to be scored in that position
+"""
+
+
 def create_problem(teams, num_null_panels=6, verbose=False):
     # Variable to contain the problem data
     prob = LpProblem("Maximizing Deepspace Scoring Potential", LpMaximize)
@@ -133,10 +143,3 @@ def find_optimal_null(teams):
     print('All the possible scores were: ', all_scores)
 
     return best_optimums
-
-
-# create_problem([2521, 1359, 1425])
-# best = find_optimal_null([568, 1359, 1425])
-#
-# print(best['num_null_panels'])
-# print(best['score'])

@@ -4,7 +4,7 @@ from openpyxl import Workbook, load_workbook
 from itertools import repeat
 
 
-def write_to_spreadsheet(optimal_positions, filename, match_num, alliance_color):
+def write_to_spreadsheet(optimal_positions, loadname, savename, match_num, alliance_color):
     print(optimal_positions)
 
     # Extracts the position values into a list
@@ -31,10 +31,8 @@ def write_to_spreadsheet(optimal_positions, filename, match_num, alliance_color)
                                             Writing to Spreadsheet
     =====================================================================================================
     """
-    print(filename)
-
     # Loads the workbook and assigns the worksheet to a variable
-    workbook = load_workbook('DeepSpace Scoring Optimizer.xlsx')
+    workbook = load_workbook('DeepSpace Scoring Optimizer.xlsx') if loadname == 'default' else load_workbook(loadname)
     sheet = workbook['Match']
 
     # List of the column letters to to write data in
@@ -70,36 +68,4 @@ def write_to_spreadsheet(optimal_positions, filename, match_num, alliance_color)
     for row in range(4, 9 + 1):
         sheet[totals_column + str(row)] = '=SUM({}:{})'.format(columns[0] + str(row), columns[2] + str(row))
 
-
-
-    workbook.save('DeepSpace Scoring Optimizer_rewritten.xlsx')
-
-
-optimal_positions = find_optimal_null(['568', '1359', '1425'])
-
-write_to_spreadsheet(optimal_positions, 'Score Optimization.xlsx', match_num=1, alliance_color='blue')
-
-# # Some data we want to write to the worksheet.
-# expenses = (
-#     ['Rent', 1000],
-#     ['Gas',   100],
-#     ['Food',  300],
-#     ['Gym',    50],
-# )
-
-
-# # Start from the first cell. Rows and columns are zero indexed.
-# row = 0
-# col = 0
-#
-# # Iterate over the data and write it out row by row.
-# for item, cost in (expenses):
-#     worksheet.write(row, col,     item)
-#     worksheet.write(row, col + 1, cost)
-#     row += 1
-#
-# # Write a total using a formula.
-# worksheet.write(row, 0, 'Total')
-# worksheet.write(row, 1, '=SUM(B1:B4)')
-#
-# workbook.close()
+    workbook.save(savename)
