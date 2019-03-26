@@ -1,0 +1,3 @@
+pulp==1.6.9
+numpy==1.16.0
+openpyxl==2.5.12

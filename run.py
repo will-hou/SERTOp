@@ -34,6 +34,9 @@ def create_match_spreadsheet(datafile, sheetname, match_num, blue_teams, red_tea
     print("Blue teams: {}      Red teams: {}".format(blue_teams, red_teams))
     print("Created {} for match {}".format(sheetname, match_num))
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+                        PLEASE DON'T TOUCH ANYTHING ABOVE THIS LINE
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 create_match_spreadsheet(datafile='clackams_extracted.json', sheetname='clackams_QF1.xlsx', match_num=1,
                          blue_teams=['2550', '1432', '4110'], red_teams=['2521', '5085', '1359'],
