@@ -8,7 +8,7 @@
 
 ### Create beautiful spreadsheets to optimize scoring in DeepSpace with scouting data collected with [Robot Scouter](https://github.com/SUPERCILEX/Robot-Scouter)
 
-![Score Optimization Template Spreadsheet](https://user-images.githubusercontent.com/23201789/54971951-5abab000-4f46-11e9-9824-dfc3310d1736.png)
+![Score Optimization Template Spreadsheet](https://user-images.githubusercontent.com/23201789/55105011-c1e07d80-5088-11e9-84f1-e0c5e7f50705.png)
 
 ## Usage
 
@@ -41,5 +41,3 @@ This program is highly experimental and was designed specifically for usage by S
 Although teams/individuals interested in this program are more than welcome to use it, many features are not optimized (haha) for general usability. Additionally, reliability of the program is also not guaranteed -- extensive testing has not been performed and small bugs are likely to exist.
 
 That being said, please feel free to submit an issue if bugs are found, you have suggestons, or if you would like some assistance!
-
-Thanks! - 2521  
