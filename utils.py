@@ -1,9 +1,28 @@
+import json
+
+
 # Util function returning the team number and scoring location of a given position string
 def parse_position(position):
     team_num = position.split('-')[0]
     scoring_location = position.split('-')[1]
 
     return team_num, scoring_location
+
+
+# Util function returning 2 team arrays from the blue alliance and the red alliance
+def get_teams_from_match(schedulefile, matchnum):
+    with open(schedulefile, 'r') as fp:
+        schedule = json.load(fp)
+
+    for match in schedule:
+        if match['comp_level'] == 'qm' and match['match_number'] == int(matchnum):
+            blue = match['alliances']['blue']['team_keys']
+            red = match['alliances']['red']['team_keys']
+    # Remove the 'frc' tag from each of the team keys
+    blue = [team.split('frc')[1] for team in blue]
+    red = [team.split('frc')[1] for team in red]
+
+    return blue, red
 
 
 """
