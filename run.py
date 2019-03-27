@@ -16,23 +16,28 @@ red teams: list = list of team strings on the red alliance
 blue_null_panels: string or int = Number of null panels used in the constraints to calculate optimal score
                                  default='optimal' automatically uses value that results in the greatest optimal score
 red_null_panels: string or int = same as blue_null_panels but for red teams
+force_rocket: boolean = whether to force the lp problem creator to ensure a rocket in constraints instead of calculating
+                                 its feasibility. WARNING: CAN LEAD TO AN IMPOSSIBLE SOLUTION.
 """
 
 
 def create_match_spreadsheet(datafile, sheetname, match_num, blue_teams, red_teams, blue_null_panels='optimal',
-                             red_null_panels='optimal'):
-    b_optimal_positions = find_optimal_null(datafile, blue_teams) if blue_null_panels == 'optimal' else create_problem(
+                             red_null_panels='optimal', force_rocket=None):
+    b_optimal_positions = find_optimal_null(datafile, blue_teams,
+                                            force_rocket) if blue_null_panels == 'optimal' else create_problem(
         datafile, blue_teams,
-        blue_null_panels)
-    r_optimal_positions = find_optimal_null(datafile, red_teams) if red_null_panels == 'optimal' else create_problem(
+        blue_null_panels, force_rocket)
+    r_optimal_positions = find_optimal_null(datafile, red_teams,
+                                            force_rocket) if red_null_panels == 'optimal' else create_problem(
         datafile, red_teams,
-        red_null_panels)
+        red_null_panels, force_rocket)
 
     write_to_spreadsheet(b_optimal_positions, 'default', sheetname, match_num, 'blue')
     write_to_spreadsheet(r_optimal_positions, sheetname, sheetname, match_num, 'red')
 
     print("Blue teams: {}      Red teams: {}".format(blue_teams, red_teams))
     print("Created {} for match {}".format(sheetname, match_num))
+
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
                         PLEASE DON'T TOUCH ANYTHING ABOVE THIS LINE
