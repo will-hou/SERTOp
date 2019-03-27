@@ -63,6 +63,7 @@ def write_to_spreadsheet(optimal_positions, loadname, savename, match_num, allia
     # Write the optimum score and number of null panels to use to the sheet
     sheet[columns[1] + '11'] = optimal_positions['score']
     sheet[columns[1] + '14'] = optimal_positions['num_null_panels']
+    sheet[totals_column + '14'] = optimal_positions['optimize_rocket']
 
     # Write totals for each scoring location
     for row in range(4, 9 + 1):

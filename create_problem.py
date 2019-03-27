@@ -1,4 +1,5 @@
 from pulp import *
+from utils import *
 import json
 
 scoring_locations = ['C_CS', 'C_RL', 'C_RMH', 'P_CS', 'P_RL', 'P_RMH']
@@ -7,15 +8,6 @@ scoring_locations = ['C_CS', 'C_RL', 'C_RMH', 'P_CS', 'P_RL', 'P_RMH']
 locations = dict(C_CS='Cargo in Cargo Ship,Teleop', C_RL='Cargo in low Rocket,Teleop',
                  C_RMH='Cargo in middle/high Rocket,Teleop', P_CS='Panels on Cargo Ship,Teleop',
                  P_RL='Panels on low Rocket,Teleop', P_RMH='Panels on middle/high Rocket,Teleop')
-
-
-# Util function returning the team number and scoring location of a given position string
-def parse_position(position):
-    team_num = position.split('-')[0]
-    scoring_location = position.split('-')[1]
-
-    return team_num, scoring_location
-
 
 """
 Creates and solves a LP problem optimizing the number of game piece points with constraints corresponding to teams' 
@@ -27,10 +19,14 @@ values corresponding to number of game pieces to be scored in that position
 """
 
 
-def create_problem(datafile, teams, num_null_panels=6, verbose=False):
+def create_problem(datafile, teams, num_null_panels=6, optimize_rocket='auto', verbose=False):
     # Reads the given file of formatted scouting data
     with open(datafile, 'r') as fp:
         scouting_data = json.load(fp)
+
+    # Determine whether rocket completion should be factored in the constraints
+    optimize_rocket = evaluate_possible_rocket(scouting_data, teams, 5,
+                                               2) if optimize_rocket == 'auto' else optimize_rocket
 
     # Variable to contain the problem data
     prob = LpProblem("Maximizing Deepspace Scoring Potential", LpMaximize)
@@ -100,6 +96,17 @@ def create_problem(datafile, teams, num_null_panels=6, verbose=False):
         positions[i] for i in positions if
         'RMH' in i and 'P' in i), "Panels must be placed before Cargo on Middle/High Rockets"
 
+    # Create constraints ensuring a complete rocket if optimize_rocket is true
+    if optimize_rocket:
+        prob += lpSum(
+            positions[i] for i in positions if 'RL' in i and 'P' in i) >= 2, "At least two Panels on Low Rocket"
+        prob += lpSum(
+            positions[i] for i in positions if 'RL' in i and 'P' not in i) >= 2, "At least two Cargo in Low Rocket"
+        prob += lpSum(positions[i] for i in positions if
+                      'RMH' in i and 'P' in i) >= 4, "At least four Panels on Middle/High Rocket"
+        prob += lpSum(positions[i] for i in positions if
+                      'RMH' in i and 'P' not in i) >= 4, "At least four Cargo in Middle/High Rocket"
+
     """ 
     =====================================================================================================
                                             SOLVING
@@ -121,20 +128,21 @@ def create_problem(datafile, teams, num_null_panels=6, verbose=False):
         # The optimised objective function value is printed to the screen
         print("MAX", value(prob.objective))
 
-    # Create dictionary to store the optimum game pieces at each scoring location, max score, teams,
-    # and number of null panels to use
+    # Create dictionary to store the optimum game pieces at each scoring location, max score,
+    # whether score was optimized for a complete rocket, and number of null panels to use
     optimum_positions = {v.name: v.varValue for v in prob.variables()}
-    optimum_positions.update(score=value(prob.objective), num_null_panels=num_null_panels, teams=teams)
+    optimum_positions.update(score=value(prob.objective), num_null_panels=num_null_panels,
+                             optimize_rocket=optimize_rocket)
 
     return optimum_positions
 
 
 # Creates 6 different LP problems with different number of null panels and returns the highest-scoring solution
-def find_optimal_null(datafile, teams):
+def find_optimal_null(datafile, teams, optimize_rocket='auto'):
     best_score = 0
     all_scores = []
     for num_null_panels in range(0, 6 + 1):
-        optimums = create_problem(datafile, teams, num_null_panels)
+        optimums = create_problem(datafile, teams, num_null_panels, optimize_rocket)
         all_scores.append(optimums['score'])
         # If there are identical scores with different numbers of null panels, keep the one that uses the most
         if optimums['score'] >= best_score:
