@@ -2,7 +2,14 @@ from create_problem import *
 from write import write_to_spreadsheet
 import argparse
 
-# TODO: Implement argparse and create spreadsheets from just match number
+parser = argparse.ArgumentParser()
+parser.add_argument('-fcl', '--fromcommandline', help="whether the spreadsheet is being created from the command line",
+                    action='store_true')
+parser.add_argument('-s', '--sheetname', help="the name of the spreadsheet to write data to")
+parser.add_argument('-m', '--matchnumber', help="the qualification match number to get team data from")
+
+args = parser.parse_args()
+
 """
 Main function to create a spreadsheet of optimum position values
 
@@ -44,6 +51,25 @@ def create_match_spreadsheet(datafile, sheetname, match_num, blue_teams, red_tea
                         PLEASE DON'T TOUCH ANYTHING ABOVE THIS LINE
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-create_match_spreadsheet(datafile='clackams_extracted.json', sheetname='clackams_QF1.xlsx', match_num=1,
-                         blue_teams=['3674', '3673', '3636'], red_teams=['2521', '5085', '1359'],
-                         blue_null_panels='optimal', red_null_panels='optimal', optimize_rocket='auto')
+"""
+Creating spreadsheets from the command line:
+
+python run.py -fcl -s [spreadsheet name] -m [match_number]
+ex.) python run.py -fcl  -s "test.xlsx" -m 3
+Creates a spreadsheet called "test.xlsx" for qualification match 3
+
+Importing a schedule:
+In the get_teams_from_match function below, change 'schedule.json' to be the name of your match_schedule json
+
+"""
+
+if args.fromcommandline:
+    blue_teams, red_teams = get_teams_from_match('schedule.json', args.matchnumber)
+
+    create_match_spreadsheet(datafile='clackams_extracted.json', sheetname=args.sheetname, match_num=args.matchnumber,
+                             blue_teams=blue_teams, red_teams=red_teams,
+                             blue_null_panels='optimal', red_null_panels='optimal', optimize_rocket='auto')
+else:
+    create_match_spreadsheet(datafile='clackams_extracted.json', sheetname='clackams_QF1.xlsx', match_num=1,
+                             blue_teams=['3674', '3673', '3636'], red_teams=['2521', '5085', '1359'],
+                             blue_null_panels='optimal', red_null_panels='optimal', optimize_rocket='auto')
