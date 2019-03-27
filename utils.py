@@ -1,6 +1,3 @@
-import json
-
-
 # Util function returning the team number and scoring location of a given position string
 def parse_position(position):
     team_num = position.split('-')[0]
@@ -114,9 +111,3 @@ def evaluate_possible_rocket(scouting_data, teams, max_contribution, acceptable_
         return True
     else:
         return False
-
-
-with open('clackams_extracted.json', 'r') as fp:
-    scouting_data = json.load(fp)
-
-evaluate_possible_rocket(scouting_data, ['2521', '1425', '1540'], 5, 2)

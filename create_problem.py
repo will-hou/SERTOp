@@ -19,13 +19,14 @@ values corresponding to number of game pieces to be scored in that position
 """
 
 
-def create_problem(datafile, teams, num_null_panels=6, force_rocket=None, verbose=False):
+def create_problem(datafile, teams, num_null_panels=6, optimize_rocket='auto', verbose=False):
     # Reads the given file of formatted scouting data
     with open(datafile, 'r') as fp:
         scouting_data = json.load(fp)
 
     # Determine whether rocket completion should be factored in the constraints
-    optimize_rocket = force_rocket if force_rocket is not None else evaluate_possible_rocket(scouting_data, teams, 5, 2)
+    optimize_rocket = evaluate_possible_rocket(scouting_data, teams, 5,
+                                               2) if optimize_rocket == 'auto' else optimize_rocket
 
     # Variable to contain the problem data
     prob = LpProblem("Maximizing Deepspace Scoring Potential", LpMaximize)
@@ -137,11 +138,11 @@ def create_problem(datafile, teams, num_null_panels=6, force_rocket=None, verbos
 
 
 # Creates 6 different LP problems with different number of null panels and returns the highest-scoring solution
-def find_optimal_null(datafile, teams, force_rocket=None):
+def find_optimal_null(datafile, teams, optimize_rocket='auto'):
     best_score = 0
     all_scores = []
     for num_null_panels in range(0, 6 + 1):
-        optimums = create_problem(datafile, teams, num_null_panels, force_rocket)
+        optimums = create_problem(datafile, teams, num_null_panels, optimize_rocket)
         all_scores.append(optimums['score'])
         # If there are identical scores with different numbers of null panels, keep the one that uses the most
         if optimums['score'] >= best_score:

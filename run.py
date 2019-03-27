@@ -16,21 +16,22 @@ red teams: list = list of team strings on the red alliance
 blue_null_panels: string or int = Number of null panels used in the constraints to calculate optimal score
                                  default='optimal' automatically uses value that results in the greatest optimal score
 red_null_panels: string or int = same as blue_null_panels but for red teams
-force_rocket: boolean = whether to force the lp problem creator to ensure a rocket in constraints instead of calculating
-                                 its feasibility. WARNING: CAN LEAD TO AN IMPOSSIBLE SOLUTION.
+optimize_rocket: string or boolean = whether to force the lp problem creator to ensure a rocket in constraints instead of
+                                 calculating its feasibility. Default: 'auto' 
+                                 WARNING: CAN LEAD TO AN IMPOSSIBLE SOLUTION.
 """
 
 
 def create_match_spreadsheet(datafile, sheetname, match_num, blue_teams, red_teams, blue_null_panels='optimal',
-                             red_null_panels='optimal', force_rocket=None):
+                             red_null_panels='optimal', optimize_rocket='auto'):
     b_optimal_positions = find_optimal_null(datafile, blue_teams,
-                                            force_rocket) if blue_null_panels == 'optimal' else create_problem(
+                                            optimize_rocket) if blue_null_panels == 'optimal' else create_problem(
         datafile, blue_teams,
-        blue_null_panels, force_rocket)
+        blue_null_panels, optimize_rocket)
     r_optimal_positions = find_optimal_null(datafile, red_teams,
-                                            force_rocket) if red_null_panels == 'optimal' else create_problem(
+                                            optimize_rocket) if red_null_panels == 'optimal' else create_problem(
         datafile, red_teams,
-        red_null_panels, force_rocket)
+        red_null_panels, optimize_rocket)
 
     write_to_spreadsheet(b_optimal_positions, 'default', sheetname, match_num, 'blue')
     write_to_spreadsheet(r_optimal_positions, sheetname, sheetname, match_num, 'red')
@@ -44,5 +45,5 @@ def create_match_spreadsheet(datafile, sheetname, match_num, blue_teams, red_tea
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 create_match_spreadsheet(datafile='clackams_extracted.json', sheetname='clackams_QF1.xlsx', match_num=1,
-                         blue_teams=['2550', '1432', '4110'], red_teams=['2521', '5085', '1359'],
-                         blue_null_panels='optimal', red_null_panels='optimal')
+                         blue_teams=['3674', '3673', '3636'], red_teams=['2521', '5085', '1359'],
+                         blue_null_panels='optimal', red_null_panels='optimal', optimize_rocket='auto')
