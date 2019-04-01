@@ -19,7 +19,7 @@ args = parser.parse_args()
 file_path = askopenfilename(
     filetypes=[("JSON files", '*.json')])  # show an "Open" dialog box and return the path to the selected file
 
-with open(file_path, 'r') as file_path:
+with open(file_path, 'r', errors='ignore') as file_path:
     json_data = json.load(file_path)
 
 calculation_map = {'max': max, 'min': min, 'avg': mean}
